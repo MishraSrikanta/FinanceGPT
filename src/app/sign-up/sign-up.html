@@ -1,0 +1,123 @@
+<div class="signup-wrapper">
+  <div class="signup-container">
+    <!-- Header Section -->
+    <div class="auth-header">
+      <div class="logo-section">
+        <div class="logo-icon">⭐</div>
+        <h1>Join Us Today</h1>
+      </div>
+      <p class="subtitle">Create your account and get started instantly</p>
+    </div>
+
+    <!-- Form Section -->
+    <form class="signup-form" (ngSubmit)="submit()">
+      <!-- User ID Field -->
+      <div class="form-group">
+        <label for="regUserId" class="form-label">Username</label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="regUserId"
+            class="form-input"
+            placeholder="Choose your username"
+            [(ngModel)]="userId"
+            name="userId"
+          />
+          <div class="input-icon">👤</div>
+        </div>
+      </div>
+
+      <!-- Full Name Field -->
+      <div class="form-group">
+        <label for="regName" class="form-label">Full Name</label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="regName"
+            class="form-input"
+            placeholder="Enter your full name"
+            [(ngModel)]="name"
+            name="name"
+          />
+          <div class="input-icon">✎</div>
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="regEmail" class="form-label">Email Address</label>
+        <div class="input-wrapper">
+          <input
+            type="email"
+            id="regEmail"
+            class="form-input"
+            placeholder="your@email.com"
+            [(ngModel)]="email"
+            name="email"
+          />
+          <div class="input-icon">✉</div>
+        </div>
+      </div>
+
+      <!-- Phone Field -->
+      <div class="form-group">
+        <label for="regPhone" class="form-label">Phone Number</label>
+        <div class="input-wrapper">
+          <input
+            type="tel"
+            id="regPhone"
+            class="form-input"
+            placeholder="+1 (555) 000-0000"
+            [(ngModel)]="phone"
+            name="phone"
+          />
+          <div class="input-icon">☎</div>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="regPassword" class="form-label">Create Password</label>
+        <div class="input-wrapper">
+          <input
+            type="password"
+            id="regPassword"
+            class="form-input"
+            placeholder="Create a strong password"
+            [(ngModel)]="password"
+            name="password"
+          />
+          <div class="input-icon">🔒</div>
+        </div>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <label class="terms-checkbox">
+        <input type="checkbox" />
+        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+      </label>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">
+          <span>Create Account</span>
+          <div class="btn-glow"></div>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>Already have an account?</span>
+      </div>
+
+      <!-- Back to Login -->
+      <button type="button" class="btn btn-secondary" (click)="closeRegister()">
+        <span>Back to Login</span>
+      </button>
+    </form>
+
+    <!-- Footer Info -->
+    <p class="auth-footer">Secure registration • No credit card required</p>
+  </div>
+</div>
+

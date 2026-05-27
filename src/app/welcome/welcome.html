@@ -1,0 +1,690 @@
+<div class="dashboard-wrapper">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <div class="header-left">
+      <button class="menu-toggle" (click)="toggleSidebar()">☰</button>
+      <h1 class="app-title">FinanceGPT</h1>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn">🔔</button>
+      <div class="avatar-small">
+        {{ getUsername().charAt(0).toUpperCase() }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.active]="sidebarOpen">
+    <div class="sidebar-header">
+      <div class="logo">💰</div>
+      <h2>FinanceGPT</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'dashboard'"
+        (click)="setActiveTab('dashboard')"
+      >
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'income'"
+        (click)="setActiveTab('income')"
+      >
+        <span class="nav-icon">💵</span>
+        <span>Income</span>
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'expenses'"
+        (click)="setActiveTab('expenses')"
+      >
+        <span class="nav-icon">💸</span>
+        <span>Expenses</span>
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'taxes'"
+        (click)="setActiveTab('taxes')"
+      >
+        <span class="nav-icon">📈</span>
+        <span>Taxes</span>
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'plans'"
+        (click)="setActiveTab('plans')"
+      >
+        <span class="nav-icon">🎯</span>
+        <span>Goals & Plans</span>
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'savings'"
+        (click)="setActiveTab('savings')"
+      >
+        <span class="nav-icon">💎</span>
+        <span>Savings</span>
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'ai'"
+        (click)="setActiveTab('ai')"
+      >
+        <span class="nav-icon">🤖</span>
+        <span>AI Assistant</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar">{{ getUsername().charAt(0).toUpperCase() }}</div>
+        <div class="user-details">
+          <p class="user-name">{{ getUsername() }}</p>
+          <p class="user-plan">Premium Account</p>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span>🚪</span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="search-container">
+        <input
+          type="text"
+          placeholder="Search transactions..."
+          class="search-input"
+        />
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="top-bar-right">
+        <button class="notification-btn">
+          <span>🔔</span>
+          <span class="badge">3</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Dashboard Tab -->
+      <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+        <div class="page-header">
+          <h1>Dashboard Overview</h1>
+          <p>Your financial snapshot at a glance</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="stat-card">
+            <span class="stat-icon">💵</span>
+            <div class="stat-info">
+              <p class="stat-label">Total Balance</p>
+              <p class="stat-value">${{ getTotalBalance() }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-icon">📉</span>
+            <div class="stat-info">
+              <p class="stat-label">This Month Spending</p>
+              <p class="stat-value">${{ getTotalExpenses() }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-icon">💰</span>
+            <div class="stat-info">
+              <p class="stat-label">Total Taxes</p>
+              <p class="stat-value">${{ getTotalTaxes() }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-icon">📈</span>
+            <div class="stat-info">
+              <p class="stat-label">Savings Growth</p>
+              <p class="stat-value">+12.5%</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-graph-section">
+          <div class="graph-card">
+            <div class="graph-top">
+              <div>
+                <h3 class="graph-title">Financial Analytics</h3>
+                <p class="graph-subtitle">Monthly expense overview</p>
+              </div>
+
+              <button class="graph-btn">This Month</button>
+            </div>
+
+            <div class="graph-container">
+              <div class="graph-item">
+                <div class="graph-bar-bg">
+                  <div class="graph-bar" style="height: 45%">
+                    <span class="graph-percent">45%</span>
+                  </div>
+                </div>
+                <span>Jan</span>
+              </div>
+
+              <div class="graph-item">
+                <div class="graph-bar-bg">
+                  <div class="graph-bar active-bar" style="height: 80%">
+                    <span class="graph-percent">80%</span>
+                  </div>
+                </div>
+                <span>Feb</span>
+              </div>
+
+              <div class="graph-item">
+                <div class="graph-bar-bg">
+                  <div class="graph-bar" style="height: 60%">
+                    <span class="graph-percent">60%</span>
+                  </div>
+                </div>
+                <span>Mar</span>
+              </div>
+
+              <div class="graph-item">
+                <div class="graph-bar-bg">
+                  <div class="graph-bar" style="height: 95%">
+                    <span class="graph-percent">95%</span>
+                  </div>
+                </div>
+                <span>Apr</span>
+              </div>
+
+              <div class="graph-item">
+                <div class="graph-bar-bg">
+                  <div class="graph-bar" style="height: 72%">
+                    <span class="graph-percent">72%</span>
+                  </div>
+                </div>
+                <span>May</span>
+              </div>
+
+              <div class="graph-item">
+                <div class="graph-bar-bg">
+                  <div class="graph-bar" style="height: 58%">
+                    <span class="graph-percent">58%</span>
+                  </div>
+                </div>
+                <span>Jun</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="section">
+          <h2>Recent Transactions</h2>
+          <div class="transaction-list">
+            <div
+              *ngFor="let expense of expenses.slice(0, 3)"
+              class="transaction-item"
+            >
+              <div class="transaction-info">
+                <p class="transaction-title">{{ expense.title }}</p>
+                <p class="transaction-category">{{ expense.category }}</p>
+              </div>
+              <p class="transaction-amount">-${{ expense.amount }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Income Tab -->
+      <div *ngIf="activeTab === 'income'" class="tab-content">
+        <div class="page-header">
+          <h1>Income Overview</h1>
+          <button class="btn-primary" (click)="showIncomeForm = !showIncomeForm">
+            + Add Income
+          </button>
+        </div>
+
+        <div *ngIf="showIncomeForm" class="form-card">
+          <h3>Add Income</h3>
+          <form (ngSubmit)="addIncome()">
+            <input
+              type="text"
+              placeholder="Income title"
+              [(ngModel)]="newIncome.title"
+              name="title"
+              class="form-input"
+            />
+            <input
+              type="number"
+              placeholder="Amount"
+              [(ngModel)]="newIncome.amount"
+              name="amount"
+              class="form-input"
+            />
+            <select
+              [(ngModel)]="newIncome.source"
+              name="source"
+              class="form-input"
+            >
+              <option *ngFor="let source of incomeSources">{{ source }}</option>
+            </select>
+            <input
+              type="date"
+              [(ngModel)]="newIncome.date"
+              name="date"
+              class="form-input"
+            />
+            <textarea
+              placeholder="Description"
+              [(ngModel)]="newIncome.description"
+              name="description"
+              class="form-input"
+            ></textarea>
+            <div class="form-buttons">
+              <button type="submit" class="btn-primary">Add Income</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="showIncomeForm = false"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="income-list">
+          <h3>Income Records</h3>
+          <div *ngIf="incomes.length === 0" class="empty-state">
+            No income recorded yet.
+          </div>
+          <div *ngFor="let income of incomes" class="expense-item">
+            <div class="expense-header">
+              <h4>{{ income.title }}</h4>
+              <p class="amount">+${{ income.amount }}</p>
+            </div>
+            <div class="expense-details">
+              <span class="category-badge">{{ income.source }}</span>
+              <span class="date">{{ income.date }}</span>
+              <button class="delete-btn" (click)="deleteIncome(income.id)">
+                🗑️
+              </button>
+            </div>
+            <p class="transaction-category">{{ income.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expenses Tab -->
+      <div *ngIf="activeTab === 'expenses'" class="tab-content">
+        <div class="page-header">
+          <h1>Expense Tracker</h1>
+          <button
+            class="btn-primary"
+            (click)="showExpenseForm = !showExpenseForm"
+          >
+            + Add Expense
+          </button>
+        </div>
+
+        <!-- Add Expense Form -->
+        <div *ngIf="showExpenseForm" class="form-card">
+          <h3>Add New Expense</h3>
+          <form (ngSubmit)="addExpense()">
+            <input
+              type="text"
+              placeholder="Expense title"
+              [(ngModel)]="newExpense.title"
+              name="title"
+              class="form-input"
+            />
+            <input
+              type="number"
+              placeholder="Amount"
+              [(ngModel)]="newExpense.amount"
+              name="amount"
+              class="form-input"
+            />
+            <select
+              [(ngModel)]="newExpense.category"
+              name="category"
+              class="form-input"
+            >
+              <option *ngFor="let cat of expenseCategories">{{ cat }}</option>
+            </select>
+            <input
+              type="date"
+              [(ngModel)]="newExpense.date"
+              name="date"
+              class="form-input"
+            />
+            <textarea
+              placeholder="Description"
+              [(ngModel)]="newExpense.description"
+              name="description"
+              class="form-input"
+            ></textarea>
+            <div class="form-buttons">
+              <button type="submit" class="btn-primary">Add Expense</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="showExpenseForm = false"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Expenses List -->
+        <div class="expenses-list">
+          <div *ngFor="let expense of expenses" class="expense-item">
+            <div class="expense-header">
+              <h4>{{ expense.title }}</h4>
+              <p class="amount">-${{ expense.amount }}</p>
+            </div>
+            <div class="expense-details">
+              <span class="category-badge">{{ expense.category }}</span>
+              <span class="date">{{ expense.date }}</span>
+              <button class="delete-btn" (click)="deleteExpense(expense.id)">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Taxes Tab -->
+      <div *ngIf="activeTab === 'taxes'" class="tab-content">
+        <div class="page-header">
+          <h1>Tax Management</h1>
+          <button class="btn-primary" (click)="showTaxForm = !showTaxForm">
+            + Add Tax
+          </button>
+        </div>
+
+        <!-- Add Tax Form -->
+        <div *ngIf="showTaxForm" class="form-card">
+          <h3>Add Tax Entry</h3>
+          <form (ngSubmit)="addTax()">
+            <select [(ngModel)]="newTax.type" name="type" class="form-input">
+              <option *ngFor="let t of taxTypes">{{ t }}</option>
+            </select>
+            <input
+              type="number"
+              placeholder="Tax rate (%)"
+              [(ngModel)]="newTax.rate"
+              name="rate"
+              class="form-input"
+            />
+            <input
+              type="number"
+              placeholder="Tax amount"
+              [(ngModel)]="newTax.amount"
+              name="amount"
+              class="form-input"
+            />
+            <textarea
+              placeholder="Note"
+              [(ngModel)]="newTax.note"
+              name="note"
+              class="form-input"
+            ></textarea>
+            <div class="form-buttons">
+              <button type="submit" class="btn-primary">Add Tax</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="showTaxForm = false"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Taxes List -->
+        <div class="taxes-list">
+          <div class="tax-summary">
+            <h3>Total Tax: ${{ getTotalTaxes() }}</h3>
+          </div>
+          <div *ngFor="let tax of taxes" class="tax-item">
+            <div class="tax-header">
+              <h4>{{ tax.type }}</h4>
+              <p class="amount">${{ tax.amount }}</p>
+            </div>
+            <div class="tax-details">
+              <span class="rate">{{ tax.rate }}%</span>
+              <span class="note">{{ tax.note }}</span>
+              <button class="delete-btn" (click)="deleteTax(tax.id)">🗑️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Goals & Plans Tab -->
+      <div *ngIf="activeTab === 'plans'" class="tab-content">
+        <div class="page-header">
+          <h1>Savings Goals</h1>
+          <button class="btn-primary" (click)="showPlanForm = !showPlanForm">
+            + New Goal
+          </button>
+        </div>
+
+        <!-- Add Goal Form -->
+        <div *ngIf="showPlanForm" class="form-card">
+          <h3>Create Savings Goal</h3>
+          <form (ngSubmit)="addPlan()">
+            <input
+              type="text"
+              placeholder="Goal name (e.g., Bike)"
+              [(ngModel)]="newPlan.name"
+              name="name"
+              class="form-input"
+            />
+            <input
+              type="number"
+              placeholder="Target amount"
+              [(ngModel)]="newPlan.targetAmount"
+              name="targetAmount"
+              class="form-input"
+            />
+            <input
+              type="number"
+              placeholder="Current amount"
+              [(ngModel)]="newPlan.currentAmount"
+              name="currentAmount"
+              class="form-input"
+            />
+            <select
+              [(ngModel)]="newPlan.category"
+              name="category"
+              class="form-input"
+            >
+              <option *ngFor="let cat of planCategories">{{ cat }}</option>
+            </select>
+            <input
+              type="date"
+              placeholder="Target deadline"
+              [(ngModel)]="newPlan.deadline"
+              name="deadline"
+              class="form-input"
+            />
+            <div class="form-buttons">
+              <button type="submit" class="btn-primary">Create Goal</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="showPlanForm = false"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Plans List -->
+        <div class="plans-list">
+          <div *ngFor="let plan of plans" class="plan-card">
+            <div class="plan-header">
+              <h4>{{ plan.name }}</h4>
+              <span class="progress-percent">{{ getPlanProgress(plan) }}%</span>
+            </div>
+            <p class="plan-category">
+              {{ plan.category }} • Deadline: {{ plan.deadline }}
+            </p>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width]="getPlanProgress(plan) + '%'"
+              ></div>
+            </div>
+            <div class="plan-details">
+              <p>${{ plan.currentAmount }} / ${{ plan.targetAmount }}</p>
+              <button class="delete-btn" (click)="deletePlan(plan.id)">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Savings Tab -->
+      <div *ngIf="activeTab === 'savings'" class="tab-content">
+        <div class="page-header">
+          <h1>Savings Overview</h1>
+        </div>
+
+        <div class="savings-summary">
+          <div class="summary-card">
+            <h3>Total Saved</h3>
+            <p class="big-number">${{ getTotalSaved() }}</p>
+          </div>
+          <div class="summary-card">
+            <h3>Savings Goal</h3>
+            <p class="big-number">${{ getTotalSavingsGoal() }}</p>
+          </div>
+          <div class="summary-card">
+            <h3>Remaining</h3>
+            <!-- <p class="big-number">${{ (parseFloat(getTotalSavingsGoal()) - parseFloat(getTotalSaved())).toFixed(2) }}</p> -->
+          </div>
+        </div>
+
+        <div class="savings-chart">
+          <h3>Savings Progress by Goal</h3>
+          <div *ngFor="let plan of plans" class="savings-item">
+            <div class="savings-label">
+              <span>{{ plan.name }}</span>
+              <span class="savings-amount">${{ plan.currentAmount }}</span>
+            </div>
+            <div class="savings-bar">
+              <div
+                class="savings-fill"
+                [style.width]="getPlanProgress(plan) + '%'"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Assistant Tab -->
+      <div *ngIf="activeTab === 'ai'" class="tab-content">
+        <div class="page-header">
+          <h1>AI Financial Assistant</h1>
+          <p>Ask anything about your finances</p>
+        </div>
+
+        <div class="ai-container">
+          <div class="ai-terminal">
+            <div class="terminal-header">
+              <div class="terminal-title">$ FinFlow AI Terminal</div>
+              <div class="terminal-status">● Connected</div>
+            </div>
+
+            <div class="terminal-content">
+              <div class="terminal-line ai-response">
+                <span class="prompt">></span> Welcome to FinFlow AI Assistant!
+                Ask me anything about your finances.
+              </div>
+              <div
+                *ngFor="let msg of aiMessages"
+                class="terminal-line"
+                [class.user]="msg.isUser"
+              >
+                <span class="prompt" *ngIf="msg.isUser">$</span>
+                <span class="prompt" *ngIf="!msg.isUser">></span>
+                {{ msg.text }}
+              </div>
+              <div class="terminal-cursor">$</div>
+            </div>
+
+            <div class="terminal-input-area">
+              <input
+                type="text"
+                [(ngModel)]="aiInput"
+                (keyup.enter)="sendAiMessage()"
+                placeholder="Ask your financial question..."
+                class="terminal-input"
+              />
+              <button (click)="sendAiMessage()" class="send-btn">Send</button>
+            </div>
+          </div>
+
+          <!-- AI Suggestions -->
+          <div class="ai-suggestions">
+            <h3>Quick Insights</h3>
+            <div class="suggestion-cards">
+              <button
+                class="suggestion-card"
+                (click)="aiInput = 'Analyze my spending this month'"
+              >
+                <span>📊</span>
+                <p>Analyze my spending</p>
+              </button>
+              <button
+                class="suggestion-card"
+                (click)="aiInput = 'How can I save 10000 in 3 months'"
+              >
+                <span>💰</span>
+                <p>Savings plan</p>
+              </button>
+              <button
+                class="suggestion-card"
+                (click)="aiInput = 'Suggest tax optimization'"
+              >
+                <span>📈</span>
+                <p>Tax optimization</p>
+              </button>
+              <button
+                class="suggestion-card"
+                (click)="aiInput = 'Where am I overspending'"
+              >
+                <span>⚠️</span>
+                <p>Overspending analysis</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Overlay -->
+  <div
+    class="sidebar-overlay"
+    *ngIf="sidebarOpen"
+    (click)="toggleSidebar()"
+  ></div>
+</div>

@@ -1,0 +1,140 @@
+<div class="auth-layout">
+  <!-- Left Side: Login Form -->
+  <div class="login-left">
+    <div class="login-wrapper">
+      <div class="login-container">
+        <!-- Header -->
+        <div class="auth-header">
+          <div class="logo-section">
+            <div class="logo-icon">💰</div>
+            <h1>FinanceGPT</h1>
+          </div>
+          <p class="subtitle">Smart Financial Management Platform</p>
+        </div>
+
+        <!-- Login Form -->
+        <form class="login-form" (ngSubmit)="customerLogIn()">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                class="form-input"
+                placeholder="your@email.com"
+                [(ngModel)]="username"
+                name="username"
+              />
+              <span class="input-icon">📧</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                class="form-input"
+                placeholder="Enter password"
+                [(ngModel)]="password"
+                name="password"
+              />
+              <span class="input-icon">🔐</span>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-checkbox">
+              <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-login">
+            <span>Sign In</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="divider-line">
+          <span>New here?</span>
+        </div>
+
+        <!-- Sign Up Button -->
+        <button type="button" class="btn-signup" (click)="clickSignUpComponent()">
+          Create Free Account
+        </button>
+
+        <!-- Footer -->
+        <p class="auth-footer">
+          🔒 Secure • 🏦 Bank-Level Security • ⚡ Lightning Fast
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Features -->
+  <div class="login-right">
+    <div class="features-wrapper">
+      <!-- Badge -->
+      <div class="badge">✨ AI-Powered Finance</div>
+
+      <!-- Main Title -->
+      <h2 class="features-title">
+        Your Intelligent <br />Financial Companion
+      </h2>
+
+      <!-- Description -->
+      <p class="features-desc">
+        Track expenses, plan goals, optimize taxes, and grow your wealth with AI-powered insights.
+      </p>
+
+      <!-- Feature Cards -->
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">💸</div>
+          <h4>Smart Expenses</h4>
+          <p>Categorize and track every expense</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h4>Tax Optimization</h4>
+          <p>Calculate and minimize taxes</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h4>Goal Planning</h4>
+          <p>Plan for your dreams</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💎</div>
+          <h4>Wealth Building</h4>
+          <p>Track savings growth</p>
+        </div>
+      </div>
+
+      <!-- Stats Preview -->
+      <div class="preview-stats">
+        <div class="stat-item">
+          <div class="stat-number">500K+</div>
+          <div class="stat-label">Users</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">$2B+</div>
+          <div class="stat-label">Tracked</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">98%</div>
+          <div class="stat-label">Savings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Background Decoration -->
+    <div class="bg-decoration"></div>
+  </div>
+</div>
