@@ -15,6 +15,7 @@ export class LoginService {
   private isAuthenticated = signal(false);
   private username = signal('');
   private userId = signal('');
+  private env = signal<'dev' | 'prod'>('prod');
 
   constructor() {
     this.initializeAuthState();
@@ -61,6 +62,14 @@ export class LoginService {
       localStorage.removeItem(SAVED_USERNAME_KEY);
       localStorage.removeItem(SAVED_PASSWORD_KEY);
     }
+  }
+
+  getEnv(){
+    return this.env();
+  }
+
+  setEnv(env: 'dev' | 'prod') {
+    this.env.set(env);
   }
 
   getCurrentView() {

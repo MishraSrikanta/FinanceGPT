@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginService } from '../login-service';
+import { APIEndpoint, APIservie } from '../api-service';
 
 @Component({
   selector: 'app-sign-up',
@@ -9,7 +10,7 @@ import { LoginService } from '../login-service';
   styleUrl: './sign-up.css',
 })
 export class SignUp {
-  constructor(private loginService: LoginService) {}
+  constructor(private loginService: LoginService, private apiService: APIservie) {}
   
   userId: string = '';
   name: string = '';
@@ -32,7 +33,7 @@ export class SignUp {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.REGIGSTER), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

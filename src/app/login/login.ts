@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginService } from '../login-service';
+import { APIEndpoint, APIservie } from '../api-service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,7 @@ export class Login implements OnInit {
   password: string = '';
   rememberMe = false;
 
-  constructor(private loginService: LoginService) {}
+  constructor(private loginService: LoginService, private apiService: APIservie) {}
 
   ngOnInit() {
     const saved = this.loginService.getSavedCredentials();
@@ -35,7 +36,7 @@ export class Login implements OnInit {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.LOGIN), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, password }),
