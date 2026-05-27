@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LoginService } from '../login-service';
+import { SettingsService } from '../settings/settings-service';
+import { SettingsComponent } from '../settings/settings';
 
 interface Expense {
   parentId: string;
@@ -47,7 +49,7 @@ interface AIMessage {
 
 @Component({
   selector: 'app-welcome',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SettingsComponent],
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',
 })
@@ -189,11 +191,20 @@ export class Welcome implements OnInit {
     'Other',
   ];
 
-  constructor(private loginService: LoginService) {}
+  constructor(
+    private loginService: LoginService,
+    private settingsService: SettingsService,
+  ) {}
 
   ngOnInit() {
     this.getIncomeDataFromAPI();
     this.getExpensesDataFromAPI();
+    this.settingsService.loadSettings();
+  }
+
+  formatCurrency(value: number | string) {
+    const num = typeof value === 'string' ? parseFloat(value || '0') : value;
+    return this.settingsService.formatCurrency(Number(num || 0));
   }
 
   // ========== UI METHODS ==========
@@ -448,18 +459,18 @@ export class Welcome implements OnInit {
     if (lowerInput.includes('analyze') || lowerInput.includes('spending')) {
       const total = parseFloat(this.getTotalExpenses());
       const food = parseFloat(this.getExpensesByCategory('Food'));
-      return `📊 Analysis: You spent $${total} this month. Food expenses: $${food} (${((food / total) * 100).toFixed(1)}%). Consider reducing dining out.`;
+      return `📊 Analysis: You spent ${this.settingsService.formatCurrency(total)} this month. Food expenses: ${this.settingsService.formatCurrency(food)} (${((food / total) * 100).toFixed(1)}%). Consider reducing dining out.`;
     }
 
     if (lowerInput.includes('save') || lowerInput.includes('savings')) {
       const saved = parseFloat(this.getTotalSaved());
       const goal = parseFloat(this.getTotalSavingsGoal());
-      return `💰 Savings Status: You've saved $${saved} of your $${goal} goal (${((saved / goal) * 100).toFixed(1)}% complete). Keep up the great work!`;
+      return `💰 Savings Status: You've saved ${this.settingsService.formatCurrency(saved)} of your ${this.settingsService.formatCurrency(goal)} goal (${((saved / goal) * 100).toFixed(1)}% complete). Keep up the great work!`;
     }
 
     if (lowerInput.includes('tax')) {
       const tax = parseFloat(this.getTotalTaxes());
-      return `📈 Tax Summary: Total taxes: $${tax}. Consider consulting a tax advisor for optimization strategies.`;
+      return `📈 Tax Summary: Total taxes: ${this.settingsService.formatCurrency(tax)}. Consider consulting a tax advisor for optimization strategies.`;
     }
 
     if (lowerInput.includes('overspend') || lowerInput.includes('where')) {

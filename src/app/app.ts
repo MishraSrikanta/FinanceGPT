@@ -4,10 +4,11 @@ import { Login } from './login/login';
 import { LoginService } from './login-service';
 import { SignUp } from './sign-up/sign-up';
 import { Welcome } from './welcome/welcome';
+import { SettingsComponent } from './settings/settings';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login, SignUp, Welcome],
+  imports: [RouterOutlet, Login, SignUp, Welcome, SettingsComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   providers: [LoginService]

@@ -77,6 +77,14 @@
         <span class="nav-icon">🤖</span>
         <span>AI Assistant</span>
       </button>
+      <button
+        class="nav-btn"
+        [class.active]="activeTab === 'settings'"
+        (click)="setActiveTab('settings')"
+      >
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -130,7 +138,7 @@
             <span class="stat-icon">💵</span>
             <div class="stat-info">
               <p class="stat-label">Total Balance</p>
-              <p class="stat-value">${{ getTotalBalance() }}</p>
+              <p class="stat-value">{{ formatCurrency(getTotalBalance()) }}</p>
             </div>
           </div>
 
@@ -138,7 +146,7 @@
             <span class="stat-icon">📉</span>
             <div class="stat-info">
               <p class="stat-label">This Month Spending</p>
-              <p class="stat-value">${{ getTotalExpenses() }}</p>
+              <p class="stat-value">{{ formatCurrency(getTotalExpenses()) }}</p>
             </div>
           </div>
 
@@ -146,7 +154,7 @@
             <span class="stat-icon">💰</span>
             <div class="stat-info">
               <p class="stat-label">Total Taxes</p>
-              <p class="stat-value">${{ getTotalTaxes() }}</p>
+              <p class="stat-value">{{ formatCurrency(getTotalTaxes()) }}</p>
             </div>
           </div>
 
@@ -240,7 +248,7 @@
                 <p class="transaction-title">{{ expense.title }}</p>
                 <p class="transaction-category">{{ expense.category }}</p>
               </div>
-              <p class="transaction-amount">-${{ expense.amount }}</p>
+              <p class="transaction-amount">{{ formatCurrency(-expense.amount) }}</p>
             </div>
           </div>
         </div>
@@ -309,10 +317,10 @@
           <div *ngIf="incomes.length === 0" class="empty-state">
             No income recorded yet.
           </div>
-          <div *ngFor="let income of incomes" class="expense-item">
+            <div *ngFor="let income of incomes" class="expense-item">
             <div class="expense-header">
               <h4>{{ income.title }}</h4>
-              <p class="amount">+${{ income.amount }}</p>
+              <p class="amount">{{ formatCurrency(income.amount) }}</p>
             </div>
             <div class="expense-details">
               <span class="category-badge">{{ income.source }}</span>
@@ -390,10 +398,10 @@
 
         <!-- Expenses List -->
         <div class="expenses-list">
-          <div *ngFor="let expense of expenses" class="expense-item">
+            <div *ngFor="let expense of expenses" class="expense-item">
             <div class="expense-header">
               <h4>{{ expense.title }}</h4>
-              <p class="amount">-${{ expense.amount }}</p>
+              <p class="amount">{{ formatCurrency(-expense.amount) }}</p>
             </div>
             <div class="expense-details">
               <span class="category-badge">{{ expense.category }}</span>
@@ -458,12 +466,12 @@
         <!-- Taxes List -->
         <div class="taxes-list">
           <div class="tax-summary">
-            <h3>Total Tax: ${{ getTotalTaxes() }}</h3>
+            <h3>Total Tax: {{ formatCurrency(getTotalTaxes()) }}</h3>
           </div>
           <div *ngFor="let tax of taxes" class="tax-item">
             <div class="tax-header">
               <h4>{{ tax.type }}</h4>
-              <p class="amount">${{ tax.amount }}</p>
+              <p class="amount">{{ formatCurrency(tax.amount) }}</p>
             </div>
             <div class="tax-details">
               <span class="rate">{{ tax.rate }}%</span>
@@ -552,7 +560,7 @@
               ></div>
             </div>
             <div class="plan-details">
-              <p>${{ plan.currentAmount }} / ${{ plan.targetAmount }}</p>
+              <p>{{ formatCurrency(plan.currentAmount) }} / {{ formatCurrency(plan.targetAmount) }}</p>
               <button class="delete-btn" (click)="deletePlan(plan.id)">
                 🗑️
               </button>
@@ -570,15 +578,15 @@
         <div class="savings-summary">
           <div class="summary-card">
             <h3>Total Saved</h3>
-            <p class="big-number">${{ getTotalSaved() }}</p>
+            <p class="big-number">{{ formatCurrency(getTotalSaved()) }}</p>
           </div>
           <div class="summary-card">
             <h3>Savings Goal</h3>
-            <p class="big-number">${{ getTotalSavingsGoal() }}</p>
+            <p class="big-number">{{ formatCurrency(getTotalSavingsGoal()) }}</p>
           </div>
           <div class="summary-card">
             <h3>Remaining</h3>
-            <!-- <p class="big-number">${{ (parseFloat(getTotalSavingsGoal()) - parseFloat(getTotalSaved())).toFixed(2) }}</p> -->
+            <!-- <p class="big-number">{{ formatCurrency((parseFloat(getTotalSavingsGoal()) - parseFloat(getTotalSaved())).toFixed(2)) }}</p> -->
           </div>
         </div>
 
@@ -587,7 +595,7 @@
           <div *ngFor="let plan of plans" class="savings-item">
             <div class="savings-label">
               <span>{{ plan.name }}</span>
-              <span class="savings-amount">${{ plan.currentAmount }}</span>
+              <span class="savings-amount">{{ formatCurrency(plan.currentAmount) }}</span>
             </div>
             <div class="savings-bar">
               <div
@@ -676,6 +684,16 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+      <!-- Settings Tab -->
+      <div *ngIf="activeTab === 'settings'" class="tab-content">
+        <div class="page-header">
+          <h1>Settings</h1>
+          <p>Customize language, theme, icon and currency</p>
+        </div>
+        <div class="section">
+          <app-settings></app-settings>
         </div>
       </div>
     </div>

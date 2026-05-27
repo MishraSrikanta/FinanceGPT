@@ -1,0 +1,130 @@
+<div class="settings-layout">
+  <!-- Notification Toast -->
+  <div class="notification" *ngIf="showNotification" [class.show]="showNotification">
+    <span class="notification-content">{{ notificationMessage }}</span>
+  </div>
+
+  <!-- Settings Container -->
+  <div class="settings-wrapper">
+    <div class="settings-container">
+      <!-- Header -->
+      <div class="settings-header">
+        <div class="header-icon">⚙️</div>
+        <div class="header-content">
+          <h1>Settings</h1>
+          <p class="header-subtitle">Customize your app experience</p>
+        </div>
+      </div>
+
+      <!-- Settings Form -->
+      <form class="settings-form">
+        <!-- Display Preferences Section -->
+        <div class="settings-section">
+          <div class="section-header">
+            <span class="section-icon">🎨</span>
+            <h2>Display Preferences</h2>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">🌍 Language</label>
+            <div class="input-wrapper">
+              <select id="language" class="form-input" [(ngModel)]="state.language" name="language">
+                <option *ngFor="let l of availableLanguages">{{ l }}</option>
+              </select>
+              <span class="select-arrow">▼</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">🌙 Theme</label>
+            <div class="input-wrapper">
+              <select id="theme" class="form-input" [(ngModel)]="state.theme" name="theme">
+                <option *ngFor="let t of themeOptions">{{ t }}</option>
+              </select>
+              <span class="select-arrow">▼</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">📌 App Icon (emoji)</label>
+            <div class="input-wrapper">
+              <input 
+                id="icon"
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="state.icon"
+                name="icon"
+                placeholder="e.g., 💰 💵 💸"
+                maxlength="3"
+              />
+              <span class="input-icon">✏️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Currency Section -->
+        <div class="settings-section">
+          <div class="section-header">
+            <span class="section-icon">💱</span>
+            <h2>Currency Settings</h2>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">💵 Currency</label>
+            <div class="input-wrapper">
+              <select id="currency" class="form-input" [(ngModel)]="state.currency" name="currency">
+                <option *ngFor="let c of availableCurrencies">{{ c }}</option>
+              </select>
+              <span class="select-arrow">▼</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+          <div class="preview-header">👁️ Preview</div>
+          <div class="preview-content">
+            <div class="preview-item">
+              <span class="preview-label">Icon:</span>
+              <span class="preview-value icon-value">{{ state.icon }}</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Balance:</span>
+              <span class="preview-value">{{ settings.formatCurrency(1234.56) }}</span>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Action Buttons -->
+      <div class="button-group">
+        <button 
+          type="button"
+          class="btn btn-primary" 
+          (click)="applySettings()"
+          [disabled]="!hasChanges()"
+        >
+          <span class="btn-icon">✅</span>
+          <span class="btn-text">Apply</span>
+        </button>
+        <button 
+          type="button"
+          class="btn btn-secondary" 
+          (click)="resetSettings()"
+          [disabled]="!hasChanges()"
+        >
+          <span class="btn-icon">🔄</span>
+          <span class="btn-text">Reset</span>
+        </button>
+        <button 
+          type="button"
+          class="btn btn-outline" 
+          (click)="resetToDefaults()"
+        >
+          <span class="btn-icon">🔃</span>
+          <span class="btn-text">Defaults</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
