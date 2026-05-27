@@ -47,10 +47,10 @@ export class SettingsComponent {
         if (confirm('Are you sure you want to reset all settings to defaults?')) {
             const defaults: SettingsState = {
                 language: 'en-US',
-                theme: 'light',
+                theme: 'dark',
                 icon: '💰',
-                currency: 'USD',
-                conversionBase: 'USD',
+                currency: 'INR',
+                conversionBase: 'INR',
             };
             this.state = defaults;
             this.originalState = { ...defaults };

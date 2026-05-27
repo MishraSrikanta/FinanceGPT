@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LoginService } from '../login-service';
 import { SettingsService } from '../settings/settings-service';
 import { SettingsComponent } from '../settings/settings';
+import { APIEndpoint, APIservie } from '../api-service';
 
 interface Expense {
   parentId: string;
@@ -194,6 +195,7 @@ export class Welcome implements OnInit {
   constructor(
     private loginService: LoginService,
     private settingsService: SettingsService,
+    private apiService: APIservie,
   ) {}
 
   ngOnInit() {
@@ -217,7 +219,7 @@ export class Welcome implements OnInit {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
-  // ========== EXPENSE METHODS ==========
+  //#region ========== EXPENSE METHODS ==========
   addExpense() {
     if (
       this.newExpense.title &&
@@ -262,7 +264,7 @@ export class Welcome implements OnInit {
 
     try {
       const response = await fetch(
-        'http://localhost:5000/api/auth/addExpenses',
+        this.apiService.getAPIUrl(APIEndpoint.ADD_EXPENSE),
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -298,7 +300,7 @@ export class Welcome implements OnInit {
 
     try {
       const response = await fetch(
-        'http://localhost:5000/api/auth/getExpenses',
+        this.apiService.getAPIUrl(APIEndpoint.GET_EXPENSE),
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -313,7 +315,7 @@ export class Welcome implements OnInit {
           if (result) {
             const data: Expense = {
               parentId: result.parentId,
-              id: result.id,
+              id: result.userId,
               amount: result.amount,
               date: result.date,
               category: result.category,
@@ -337,7 +339,7 @@ export class Welcome implements OnInit {
     }
     try {
       const response = await fetch(
-        'http://localhost:5000/api/auth/deleteExpenses',
+        this.apiService.getAPIUrl(APIEndpoint.DELETE_EXPENSE),
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -371,8 +373,9 @@ export class Welcome implements OnInit {
       .reduce((sum, e) => sum + e.amount, 0)
       .toFixed(2);
   }
+  //#endregion
 
-  // ========== TAX METHODS ==========
+  //#region ========== TAX METHODS ==========
   addTax() {
     if (this.newTax.type && this.newTax.rate && this.newTax.amount) {
       this.newTax.id = Math.max(...this.taxes.map((t) => t.id), 0) + 1;
@@ -393,8 +396,9 @@ export class Welcome implements OnInit {
   calculateTaxAmount(rate: number, baseAmount: number) {
     return ((baseAmount * rate) / 100).toFixed(2);
   }
+  //#endregion
 
-  // ========== PLAN & GOALS METHODS ==========
+  //#region ========== PLAN & GOALS METHODS ==========
   addPlan() {
     if (
       this.newPlan.name &&
@@ -436,8 +440,9 @@ export class Welcome implements OnInit {
   getTotalSaved() {
     return this.plans.reduce((sum, p) => sum + p.currentAmount, 0).toFixed(2);
   }
+  //#endregion
 
-  // ========== AI ASSISTANT METHODS ==========
+  //#region ========== AI ASSISTANT METHODS ==========
   sendAiMessage() {
     if (!this.aiInput.trim()) return;
 
@@ -483,8 +488,9 @@ export class Welcome implements OnInit {
 
     return `✅ Got it! I understand you're asking about: "${input}". Would you like specific advice on expenses, taxes, or savings goals?`;
   }
+  //#endregion
 
-  // ========== DASHBOARD SUMMARY METHODS ==========
+  //#region ========== DASHBOARD SUMMARY METHODS ==========
   getTotalIncome() {
     return this.incomes
       .reduce((sum, income) => sum + income.amount, 0)
@@ -504,8 +510,9 @@ export class Welcome implements OnInit {
       parseFloat(this.getTotalSaved()) - parseFloat(this.getTotalExpenses())
     ).toFixed(2);
   }
+  //#endregion
 
-  // ========== AUTH METHODS ==========
+  //#region ========== AUTH METHODS ==========
   getUsername() {
     return this.loginService.getUsername();
   }
@@ -520,7 +527,7 @@ export class Welcome implements OnInit {
   async addIncome() {
     if (this.newIncome.title && this.newIncome.amount && this.newIncome.date) {
       this.newIncome.id = `${Math.max(...this.incomes.map((i) => +i.id), 0) + 1}`;
-      await this.addIncomeData();
+      await this.addIncomeDataAPI();
 
       this.newIncome = {
         parentId: '',
@@ -539,15 +546,15 @@ export class Welcome implements OnInit {
   async deleteIncome(id: string) {
     const data = this.incomes.find((i) => i.id === id);
     if (data) {
-      await this.deleteIncomeData(data.parentId, data.id);
+      await this.deleteIncomeDataAPI(data.parentId, data.id);
     }
   }
 
   async getIncomeDataFromAPI() {
-    await this.getAndUpdateIncomeData();
+    await this.getAndUpdateIncomeDataAPI();
   }
 
-  async addIncomeData() {
+  async addIncomeDataAPI() {
     if (!this.newIncome) {
       alert('Please fill all fields');
       return;
@@ -564,7 +571,7 @@ export class Welcome implements OnInit {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/addIncome', {
+      const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.ADD_INCOME), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -588,7 +595,7 @@ export class Welcome implements OnInit {
     }
   }
 
-  async getAndUpdateIncomeData() {
+  async getAndUpdateIncomeDataAPI() {
     const parentId = this.loginService.getUseruniqueId();
     if (!parentId) {
       alert('No UserId Found');
@@ -596,7 +603,7 @@ export class Welcome implements OnInit {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/getIncome', {
+      const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.GET_INCOME), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: parentId }),
@@ -627,14 +634,14 @@ export class Welcome implements OnInit {
     }
   }
 
-  async deleteIncomeData(parentId: string, userId: string) {
+  async deleteIncomeDataAPI(parentId: string, userId: string) {
     if (!parentId) {
       alert('No UserId Found');
       return;
     }
     try {
       const response = await fetch(
-        'http://localhost:5000/api/auth/deleteIncome',
+        this.apiService.getAPIUrl(APIEndpoint.DELETE_INCOME),
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -650,4 +657,5 @@ export class Welcome implements OnInit {
       alert('Income Deletion error. Please check your connection.');
     }
   }
+  //#endregion
 }
