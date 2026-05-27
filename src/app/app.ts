@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
 import { Login } from './login/login';
 import { LoginService } from './login-service';
 import { SignUp } from './sign-up/sign-up';
@@ -18,6 +18,7 @@ export class App {
   constructor(protected loginService: LoginService) {}
 
   getCurrentView() {
+    //Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
     return this.loginService.getCurrentView();
   }
 }
