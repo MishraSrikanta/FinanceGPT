@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginService } from '../login-service';
 import { APIEndpoint, APIservie } from '../api-service';
+import { AlertService } from '../alert-service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,11 @@ export class Login implements OnInit {
   password: string = '';
   rememberMe = false;
 
-  constructor(private loginService: LoginService, private apiService: APIservie) {}
+  constructor(
+    private loginService: LoginService,
+    private apiService: APIservie,
+    private alertService: AlertService,
+  ) {}
 
   ngOnInit() {
     const saved = this.loginService.getSavedCredentials();
@@ -31,9 +36,11 @@ export class Login implements OnInit {
     const password = this.password.trim();
 
     if (!userId || !password) {
-      alert('Please enter username and password');
+      this.alertService.showAlert('Please enter username and password.', 'error');
       return;
     }
+
+    this.alertService.showLoading('Signing you in...');
 
     try {
       const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.LOGIN), {
@@ -51,12 +58,15 @@ export class Login implements OnInit {
         this.loginService.setUserUniqueId(userId);
         this.loginService.setRememberMe(this.rememberMe, userId, password);
         this.loginService.setCurrentView('welcome');
+        this.alertService.showAlert('Welcome back! Your dashboard is ready.', 'success');
       } else {
-        alert(result.message || 'Login failed');
+        this.alertService.showAlert(result.message || 'Login failed. Please try again.', 'error');
       }
     } catch (error) {
-      alert('Login error. Please check your connection.');
+      this.alertService.showAlert('Login error. Please check your connection.', 'error');
       console.error(error);
+    } finally {
+      this.alertService.hideLoading();
     }
   }
 

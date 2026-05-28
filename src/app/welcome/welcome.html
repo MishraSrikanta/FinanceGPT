@@ -491,10 +491,18 @@
           </button>
         </div>
 
-        <!-- Add Goal Form -->
+        <div class="form-card">
+          <h3>How this goal session works</h3>
+          <p>
+            You can add money to your goal, set or automate deductions from your income for the goal you need,
+            and see how many days it will take to fully achieve that goal if you save a fixed monthly amount.
+          </p>
+        </div>
+
+        <!-- Add / Edit Goal Form -->
         <div *ngIf="showPlanForm" class="form-card">
-          <h3>Create Savings Goal</h3>
-          <form (ngSubmit)="addPlan()">
+          <h3>{{ editingPlanId ? 'Edit Savings Goal' : 'Create Savings Goal' }}</h3>
+          <form (ngSubmit)="savePlan()">
             <input
               type="text"
               placeholder="Goal name (e.g., Bike)"
@@ -516,6 +524,12 @@
               name="currentAmount"
               class="form-input"
             />
+            <input
+              type="date"
+              [(ngModel)]="newPlan.dateCreated"
+              name="date"
+              class="form-input"
+            />
             <select
               [(ngModel)]="newPlan.category"
               name="category"
@@ -523,19 +537,14 @@
             >
               <option *ngFor="let cat of planCategories">{{ cat }}</option>
             </select>
-            <input
-              type="date"
-              placeholder="Target deadline"
-              [(ngModel)]="newPlan.deadline"
-              name="deadline"
-              class="form-input"
-            />
             <div class="form-buttons">
-              <button type="submit" class="btn-primary">Create Goal</button>
+              <button type="submit" class="btn-primary">
+                {{ editingPlanId ? 'Update Goal' : 'Create Goal' }}
+              </button>
               <button
                 type="button"
                 class="btn-secondary"
-                (click)="showPlanForm = false"
+                (click)="cancelPlanForm()"
               >
                 Cancel
               </button>
@@ -551,7 +560,7 @@
               <span class="progress-percent">{{ getPlanProgress(plan) }}%</span>
             </div>
             <p class="plan-category">
-              {{ plan.category }} • Deadline: {{ plan.deadline }}
+              {{ plan.category }}
             </p>
             <div class="progress-bar">
               <div
@@ -561,9 +570,25 @@
             </div>
             <div class="plan-details">
               <p>{{ formatCurrency(plan.currentAmount) }} / {{ formatCurrency(plan.targetAmount) }}</p>
-              <button class="delete-btn" (click)="deletePlan(plan.id)">
-                🗑️
-              </button>
+              <div class="plan-actions">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Add money"
+                  [(ngModel)]="planDepositAmounts[+plan.id]"
+                  name="addMoney{{ plan.id }}"
+                  class="form-input small-input"
+                />
+                <button type="button" class="btn-primary" (click)="addMoneyToPlan(plan)">
+                  + Add
+                </button>
+                <button type="button" class="btn-secondary" (click)="startEditPlan(plan)">
+                  Edit
+                </button>
+                <button class="delete-btn" (click)="deletePlan(plan.id)">
+                  🗑️
+                </button>
+              </div>
             </div>
           </div>
         </div>

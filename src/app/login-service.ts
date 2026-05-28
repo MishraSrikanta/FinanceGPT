@@ -9,7 +9,7 @@ const CURRENT_USERNAME_KEY = 'currentUsername';
 const CURRENT_USERID_KEY = 'currentUserId';
 const TOKEN_EXPIRY_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LoginService {
   private currentView = signal<'login' | 'signup' | 'welcome'>('login');
   private isAuthenticated = signal(false);

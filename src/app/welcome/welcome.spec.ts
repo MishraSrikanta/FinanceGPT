@@ -20,4 +20,20 @@ describe('Welcome', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should update an existing goal when saving edits', () => {
+    const plan = component.plans[0];
+
+    component.startEditPlan(plan);
+    component.newPlan.name = 'Bike Purchase Updated';
+    component.newPlan.targetAmount = 6500;
+    component.newPlan.currentAmount = 3200;
+    component.savePlan();
+
+    const updatedPlan = component.plans.find((item) => item.id === plan.id);
+
+    expect(updatedPlan?.name).toBe('Bike Purchase Updated');
+    expect(updatedPlan?.targetAmount).toBe(6500);
+    expect(updatedPlan?.currentAmount).toBe(3200);
+  });
 });

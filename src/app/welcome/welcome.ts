@@ -5,6 +5,7 @@ import { LoginService } from '../login-service';
 import { SettingsService } from '../settings/settings-service';
 import { SettingsComponent } from '../settings/settings';
 import { APIEndpoint, APIservie } from '../api-service';
+import { AlertService } from '../alert-service';
 
 interface Expense {
   parentId: string;
@@ -35,12 +36,14 @@ interface Tax {
 }
 
 interface Plan {
-  id: number;
+  parentId: string;
+  id: string;
   name: string;
   targetAmount: number;
   currentAmount: number;
+  incrementMonthly: number;
+  dateCreated: string;
   category: string;
-  deadline: string;
 }
 
 interface AIMessage {
@@ -117,49 +120,20 @@ export class Welcome implements OnInit {
   showTaxForm = false;
 
   // Plans
-  plans: Plan[] = [
-    {
-      id: 1,
-      name: 'Bike Purchase',
-      targetAmount: 5000,
-      currentAmount: 2500,
-      category: 'Vehicle',
-      deadline: '2024-12-31',
-    },
-    {
-      id: 2,
-      name: 'Car Down Payment',
-      targetAmount: 10000,
-      currentAmount: 4000,
-      category: 'Vehicle',
-      deadline: '2025-06-30',
-    },
-    {
-      id: 3,
-      name: 'Vacation',
-      targetAmount: 3000,
-      currentAmount: 1500,
-      category: 'Travel',
-      deadline: '2024-08-31',
-    },
-    {
-      id: 4,
-      name: 'Emergency Fund',
-      targetAmount: 5000,
-      currentAmount: 2800,
-      category: 'Savings',
-      deadline: '2025-12-31',
-    },
-  ];
+  plans: Plan[] = [];
   newPlan: Plan = {
-    id: 0,
+    parentId: '',
+    id: '',
     name: '',
     targetAmount: 0,
     currentAmount: 0,
-    category: 'Vehicle',
-    deadline: '',
+    incrementMonthly: 0,
+    dateCreated: '',
+    category: '',
   };
   showPlanForm = false;
+  editingPlanId: number | null = null;
+  planDepositAmounts: Record<number, number> = {};
 
   // AI Assistant
   aiMessages: AIMessage[] = [];
@@ -196,11 +170,13 @@ export class Welcome implements OnInit {
     private loginService: LoginService,
     private settingsService: SettingsService,
     private apiService: APIservie,
+    private alertService: AlertService,
   ) {}
 
   ngOnInit() {
     this.getIncomeDataFromAPI();
     this.getExpensesDataFromAPI();
+    this.getPlanOrGoalDataFromAPI();
     this.settingsService.loadSettings();
   }
 
@@ -247,7 +223,10 @@ export class Welcome implements OnInit {
 
   async addExpensesDataFromAPI() {
     if (!this.newExpense) {
-      alert('Please fill all fields');
+      this.alertService.showAlert(
+        'Please fill all expense fields first.',
+        'error',
+      );
       return;
     }
 
@@ -286,7 +265,10 @@ export class Welcome implements OnInit {
         this.expenses.push(newExpensesData);
       }
     } catch (error) {
-      alert('Expenses error. Please check your connection.');
+      this.alertService.showAlert(
+        'Expenses update failed. Please check your connection.',
+        'error',
+      );
       console.error(error);
     }
   }
@@ -294,7 +276,10 @@ export class Welcome implements OnInit {
   async getExpensesDataFromAPI() {
     const parentId = this.loginService.getUseruniqueId();
     if (!parentId) {
-      alert('No UserId Found');
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
       return;
     }
 
@@ -304,7 +289,7 @@ export class Welcome implements OnInit {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: parentId }),
+          body: JSON.stringify({ parentId: parentId }),
         },
       );
 
@@ -322,19 +307,29 @@ export class Welcome implements OnInit {
               title: result.title,
               description: result.description,
             };
+            this.alertService.showAlert(
+              result.message || 'Expense added successfully.',
+              'success',
+            );
             this.expenses.push(data);
           }
         }
       }
     } catch (error) {
-      alert('Login error. Please check your connection.');
+      this.alertService.showAlert(
+        'Expense data could not be loaded. Please check your connection.',
+        'error',
+      );
       console.error(error);
     }
   }
 
   async deleteExpensesDataFromAPI(parentId: string, userId: string) {
     if (!parentId) {
-      alert('No UserId Found');
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
       return;
     }
     try {
@@ -350,9 +345,13 @@ export class Welcome implements OnInit {
       const results = await response.json();
       if (results) {
         this.expenses = this.expenses.filter((i) => i.id !== userId);
+        this.alertService.showAlert('Expense deletion successfully', 'success');
       }
     } catch {
-      alert('Income Deletion error. Please check your connection.');
+      this.alertService.showAlert(
+        'Expense deletion failed. Please check your connection.',
+        'error',
+      );
     }
   }
 
@@ -399,28 +398,90 @@ export class Welcome implements OnInit {
   //#endregion
 
   //#region ========== PLAN & GOALS METHODS ==========
-  addPlan() {
-    if (
-      this.newPlan.name &&
-      this.newPlan.targetAmount &&
-      this.newPlan.deadline
-    ) {
-      this.newPlan.id = Math.max(...this.plans.map((p) => p.id), 0) + 1;
-      this.plans.push({ ...this.newPlan });
-      this.newPlan = {
-        id: 0,
-        name: '',
-        targetAmount: 0,
-        currentAmount: 0,
-        category: 'Vehicle',
-        deadline: '',
-      };
-      this.showPlanForm = false;
-    }
+  resetPlanForm() {
+    this.newPlan = {
+      parentId: '',
+      id: '',
+      name: '',
+      targetAmount: 0,
+      currentAmount: 0,
+      incrementMonthly: 0,
+      dateCreated: '',
+      category: '',
+    };
+    this.editingPlanId = null;
   }
 
-  deletePlan(id: number) {
-    this.plans = this.plans.filter((p) => p.id !== id);
+  startEditPlan(plan: Plan) {
+    this.newPlan = { ...plan };
+    this.editingPlanId = +plan.id;
+    this.showPlanForm = true;
+  }
+
+  savePlan() {
+    if (!this.newPlan.name || !this.newPlan.targetAmount) {
+      return;
+    }
+
+    if (this.newPlan.targetAmount === this.newPlan.currentAmount) {
+      return;
+    }
+
+    if (this.editingPlanId) {
+      debugger;
+      const planToBeUpdated = this.plans.find(
+        (x) => +x.id === this.editingPlanId,
+      );
+      if (planToBeUpdated) {
+        const updatedPlan = {
+          ...planToBeUpdated,
+          ...this.newPlan,
+        };
+        this.updatePlanOrGoalDataFromAPI(
+          planToBeUpdated?.parentId,
+          planToBeUpdated?.id,
+          updatedPlan,
+        );
+      }
+    } else {
+      this.newPlan.id = `${Math.max(...this.plans.map((p) => +p.id), 0) + 1}`;
+      this.addPlanOrGoalDataFromAPI();
+    }
+
+    this.resetPlanForm();
+    this.showPlanForm = false;
+  }
+
+  cancelPlanForm() {
+    this.resetPlanForm();
+    this.showPlanForm = false;
+  }
+
+  addMoneyToPlan(plan: Plan) {
+    const amount = Number(this.planDepositAmounts[+plan.id] || 0);
+
+    if (amount <= 0) {
+      return;
+    }
+
+    plan.currentAmount = Math.min(
+      plan.currentAmount + amount,
+      plan.targetAmount,
+    );
+
+    this.updatePlanOrGoalDataFromAPI(plan?.parentId, plan?.id, plan);
+    this.planDepositAmounts[+plan.id] = 0;
+  }
+
+  addPlan() {
+    this.savePlan();
+  }
+
+  deletePlan(id: string) {
+    const data = this.plans.find((p) => p.id === id);
+    if (data) {
+      this.deletePlanOrGoalDataFromAPI(data.parentId, data.id);
+    }
   }
 
   updatePlanProgress(plan: Plan, newAmount: number) {
@@ -439,6 +500,190 @@ export class Welcome implements OnInit {
 
   getTotalSaved() {
     return this.plans.reduce((sum, p) => sum + p.currentAmount, 0).toFixed(2);
+  }
+
+  async addPlanOrGoalDataFromAPI() {
+    if (!this.newPlan) {
+      this.alertService.showAlert(
+        'Please fill all expense fields first.',
+        'error',
+      );
+      return;
+    }
+
+    const parentId = this.loginService.getUseruniqueId();
+    const data = {
+      parentId: parentId,
+      userId: this.newPlan.id,
+      name: this.newPlan.name,
+      targetAmount: this.newPlan.targetAmount,
+      currentAmount: this.newPlan.currentAmount,
+      incrementMonthly: this.newPlan.incrementMonthly,
+      dateCreated: this.newPlan.dateCreated,
+      category: this.newPlan.category,
+    };
+
+    try {
+      const response = await fetch(
+        this.apiService.getAPIUrl(APIEndpoint.ADD_GOAL),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        },
+      );
+
+      const result = await response.json();
+      if (result) {
+        const newExpensesData: Plan = {
+          parentId: parentId,
+          id: data.userId,
+          name: data.name,
+          targetAmount: data.targetAmount,
+          currentAmount: data.currentAmount,
+          incrementMonthly: data.incrementMonthly,
+          dateCreated: data.dateCreated,
+          category: data.category,
+        };
+        this.plans.push(newExpensesData);
+      }
+    } catch (error) {
+      this.alertService.showAlert(
+        'Goal-Plan update failed. Please check your connection.',
+        'error',
+      );
+      console.error(error);
+    }
+  }
+
+  async getPlanOrGoalDataFromAPI() {
+    const parentId = this.loginService.getUseruniqueId();
+    if (!parentId) {
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        this.apiService.getAPIUrl(APIEndpoint.GET_GOAL),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ parentId: parentId }),
+        },
+      );
+
+      const results = await response.json();
+
+      if (results?.goals?.length > 0) {
+        for (const result of results.goals) {
+          if (result) {
+            const data: Plan = {
+              parentId: result.parentId,
+              id: result.userId,
+              name: result.name,
+              targetAmount: result.targetAmount,
+              currentAmount: result.currentAmount,
+              incrementMonthly: result.incrementMonthly,
+              dateCreated: result.dateCreated,
+              category: result.category,
+            };
+            this.alertService.showAlert(
+              result.message || 'Goal-Plan added successfully.',
+              'success',
+            );
+            this.plans.push(data);
+          }
+        }
+      }
+    } catch (error) {
+      this.alertService.showAlert(
+        'Goal-Plan data could not be loaded. Please check your connection.',
+        'error',
+      );
+      console.error(error);
+    }
+  }
+
+  async deletePlanOrGoalDataFromAPI(parentId: string, userId: string) {
+    if (!parentId) {
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
+      return;
+    }
+    try {
+      const response = await fetch(
+        this.apiService.getAPIUrl(APIEndpoint.DELETE_GOAL),
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ parentId: parentId, userId: userId }),
+        },
+      );
+
+      const results = await response.json();
+      if (results) {
+        this.plans = this.plans.filter((i) => i.id !== userId);
+        this.alertService.showAlert(
+          'Goal-Plan deletion successfully',
+          'success',
+        );
+      }
+    } catch {
+      this.alertService.showAlert(
+        'Goal-Plan deletion failed. Please check your connection.',
+        'error',
+      );
+    }
+  }
+
+  async updatePlanOrGoalDataFromAPI(
+    parentId: string,
+    userId: string,
+    updatedPlanData: Plan,
+  ) {
+    if (!parentId || !userId || !updatedPlanData) {
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
+      return;
+    }
+    try {
+      const response = await fetch(
+        this.apiService.getAPIUrl(APIEndpoint.UPDATE_GOAL),
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            parentId: parentId,
+            userId: userId,
+            updatedPlanData,
+          }),
+        },
+      );
+
+      const results = await response.json();
+      if (results) {
+        this.plans = this.plans.map((plan) =>
+          +plan.id === +userId ? { ...plan, ...updatedPlanData } : plan,
+        );
+        this.alertService.showAlert(
+          'Goal-Plan Updation successfully',
+          'success',
+        );
+      }
+    } catch {
+      this.alertService.showAlert(
+        'Goal-Plan Updation failed. Please check your connection.',
+        'error',
+      );
+    }
   }
   //#endregion
 
@@ -518,10 +763,16 @@ export class Welcome implements OnInit {
   }
 
   logout() {
-    this.loginService.clearToken();
-    this.loginService.setIsAuthenticated(false);
-    this.loginService.setUsername('');
-    this.loginService.setCurrentView('login');
+    this.alertService.showLoading('Signing you out...');
+
+    setTimeout(() => {
+      this.loginService.clearToken();
+      this.loginService.setIsAuthenticated(false);
+      this.loginService.setUsername('');
+      this.loginService.setCurrentView('login');
+      this.alertService.hideLoading();
+      this.alertService.showAlert('You have been signed out securely.', 'info');
+    }, 450);
   }
 
   async addIncome() {
@@ -556,7 +807,10 @@ export class Welcome implements OnInit {
 
   async addIncomeDataAPI() {
     if (!this.newIncome) {
-      alert('Please fill all fields');
+      this.alertService.showAlert(
+        'Please fill all income fields first.',
+        'error',
+      );
       return;
     }
 
@@ -571,14 +825,20 @@ export class Welcome implements OnInit {
     };
 
     try {
-      const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.ADD_INCOME), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        this.apiService.getAPIUrl(APIEndpoint.ADD_INCOME),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        },
+      );
 
       const result = await response.json();
-      alert(result.message);
+      this.alertService.showAlert(
+        result.message || 'Income added successfully.',
+        'success',
+      );
       const newIncomeData: Income = {
         parentId: this.loginService.getUseruniqueId(),
         id: this.newIncome.id,
@@ -590,7 +850,10 @@ export class Welcome implements OnInit {
       };
       this.incomes.push(newIncomeData);
     } catch (error) {
-      alert('Registration error. Please check your connection.');
+      this.alertService.showAlert(
+        'Income submission failed. Please check your connection.',
+        'error',
+      );
       console.error(error);
     }
   }
@@ -598,16 +861,22 @@ export class Welcome implements OnInit {
   async getAndUpdateIncomeDataAPI() {
     const parentId = this.loginService.getUseruniqueId();
     if (!parentId) {
-      alert('No UserId Found');
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
       return;
     }
 
     try {
-      const response = await fetch(this.apiService.getAPIUrl(APIEndpoint.GET_INCOME), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: parentId }),
-      });
+      const response = await fetch(
+        this.apiService.getAPIUrl(APIEndpoint.GET_INCOME),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: parentId }),
+        },
+      );
 
       const results = await response.json();
       console.log(results);
@@ -629,14 +898,20 @@ export class Welcome implements OnInit {
         }
       }
     } catch (error) {
-      alert('Income Data error. Please check your connection.');
+      this.alertService.showAlert(
+        'Income data could not be loaded. Please check your connection.',
+        'error',
+      );
       console.error(error);
     }
   }
 
   async deleteIncomeDataAPI(parentId: string, userId: string) {
     if (!parentId) {
-      alert('No UserId Found');
+      this.alertService.showAlert(
+        'No user account was found for this session.',
+        'error',
+      );
       return;
     }
     try {
@@ -652,9 +927,13 @@ export class Welcome implements OnInit {
       const results = await response.json();
       if (results) {
         this.incomes = this.incomes.filter((i) => i.id !== userId);
+        this.alertService.showAlert('Income deletion successfully', 'success');
       }
     } catch {
-      alert('Income Deletion error. Please check your connection.');
+      this.alertService.showAlert(
+        'Income deletion failed. Please check your connection.',
+        'error',
+      );
     }
   }
   //#endregion

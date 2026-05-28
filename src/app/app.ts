@@ -1,23 +1,25 @@
-import { RouterOutlet } from '@angular/router';
 import { Component } from '@angular/core';
 import { Login } from './login/login';
 import { LoginService } from './login-service';
 import { SignUp } from './sign-up/sign-up';
 import { Welcome } from './welcome/welcome';
-import { SettingsComponent } from './settings/settings';
 import { APIservie } from './api-service';
+import { AlertService } from './alert-service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login, SignUp, Welcome, SettingsComponent],
+  imports: [Login, SignUp, Welcome],
   templateUrl: './app.html',
   styleUrl: './app.css',
-  providers: [LoginService, APIservie]
+  providers: [LoginService, APIservie, AlertService]
 })
 export class App {
   protected title = 'login-app';
 
-  constructor(protected loginService: LoginService) {
+  constructor(
+    protected loginService: LoginService,
+    protected alertService: AlertService,
+  ) {
     this.setEnv();
   }
 

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginService } from '../login-service';
 import { APIEndpoint, APIservie } from '../api-service';
+import { AlertService } from '../alert-service';
 
 @Component({
   selector: 'app-sign-up',
@@ -10,7 +11,11 @@ import { APIEndpoint, APIservie } from '../api-service';
   styleUrl: './sign-up.css',
 })
 export class SignUp {
-  constructor(private loginService: LoginService, private apiService: APIservie) {}
+  constructor(
+    private loginService: LoginService,
+    private apiService: APIservie,
+    private alertService: AlertService,
+  ) {}
   
   userId: string = '';
   name: string = '';
@@ -20,9 +25,11 @@ export class SignUp {
 
   async submit() {
     if (!this.userId || !this.name || !this.email || !this.phone || !this.password) {
-      alert('Please fill all fields');
+      this.alertService.showAlert('Please fill all sign-up fields.', 'error');
       return;
     }
+
+    this.alertService.showLoading('Creating your account...');
 
     const data = {
       userId: this.userId,
@@ -40,15 +47,16 @@ export class SignUp {
       });
 
       const result = await response.json();
-      alert(result.message);
-      
+      this.alertService.showAlert(result.message || 'Account created successfully.', 'success');
+
       if (response.ok) {
-        // After successful signup, go back to login
         this.closeRegister();
       }
     } catch (error) {
-      alert('Registration error. Please check your connection.');
+      this.alertService.showAlert('Registration error. Please check your connection.', 'error');
       console.error(error);
+    } finally {
+      this.alertService.hideLoading();
     }
   }
 

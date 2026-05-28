@@ -1,23 +1,60 @@
 <div class="app-container">
   <h1>{{ title }}</h1>
-  
+
+  @if (alertService.isLoading()) {
+  <div class="loader-overlay" aria-live="polite">
+    <div class="loader-card">
+      <!-- 3D FG Logo -->
+      <div class="fg-loader">
+        <!-- F -->
+        <div class="f-logo">
+          <span class="f-vertical"></span>
+          <span class="f-top"></span>
+          <span class="f-middle"></span>
+        </div>
+
+        <!-- G -->
+        <div class="g-logo">
+          <span class="g-cut"></span>
+          <span class="g-bar"></span>
+          <span class="g-vertical"></span>
+        </div>
+
+        <!-- Orbit -->
+        <div class="orbit-ring"></div>
+      </div>
+
+      <p class="loader-title">FinanceGPT</p>
+      <span class="loader-message"> {{ alertService.loadingMessage() }} </span>
+    </div>
+  </div>
+  } @if (alertService.alert(); as alert) {
+  <div
+    class="alert-toast"
+    [class]="'alert-' + alert.tone"
+    aria-live="assertive"
+  >
+    <strong
+      >{{ alert.tone === 'success' ? 'Success' : alert.tone === 'error' ?
+      'Alert' : 'Notice' }}</strong
+    >
+    <span>{{ alert.message }}</span>
+  </div>
+  }
+
   <div class="view-container">
     @if (getCurrentView() === 'login') {
-      <div class="fade-in">
-        <app-login></app-login>
-      </div>
-    }
-    
-    @if (getCurrentView() === 'signup') {
-      <div class="fade-in">
-        <app-sign-up></app-sign-up>
-      </div>
-    }
-    
-    @if (getCurrentView() === 'welcome') {
-      <div class="fade-in">
-        <app-welcome></app-welcome>
-      </div>
+    <div class="fade-in">
+      <app-login></app-login>
+    </div>
+    } @if (getCurrentView() === 'signup') {
+    <div class="fade-in">
+      <app-sign-up></app-sign-up>
+    </div>
+    } @if (getCurrentView() === 'welcome') {
+    <div class="fade-in">
+      <app-welcome></app-welcome>
+    </div>
     }
   </div>
 </div>
